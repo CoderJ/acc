@@ -50,42 +50,49 @@ amazonCrawler.test = function(url, callback) {
 };
 amazonCrawler.getOnePage = function(params, callback) {
     var url = config.prerenderUrl + params.url + '&pageNumber=' + params.nowPage;
-    superagent.get(url).end(function(err, res) {
-        var $ = cheerio.load(res.text);
-        var items = amazonCrawler.getComments($);
-        for (i in items) {
-            items[i].schedule_id = params._id;
-        }
-        console.log("getOnePage=====", params.name, params.totalPage, params.nowPage);
-        mongodb(function(db) {
-            if (items && items.length > 0) {
-                db.collection("comments").insertMany(items, function() {
-                    db.collection("schedule").update({
-                        _id: new ObjectId(params._id)
-                    }, {
-                        $set: {
-                            nowPage: params.nowPage + 1
-                        }
-                    }, function() {
-                        callback && callback();
-                    });
-                });
+    superagent.get(url).timeout(10 * 1000).end(function(err, res) {
+            if (err || !res) {
+                setTimeout(function() {
+                    getOnePage(params, callback);
+                },3000);
+                return false;
             } else {
-                if (params.nowPage + 1 > params.totalPage) {
-                    db.collection("schedule").update({
-                        _id: new ObjectId(params._id)
-                    }, {
-                        $set: {
-                            crawled: true
-                        }
-                    }, function() {
-                        callback && callback();
-                        amazonCrawler.analyze(params);
-                    });
+                var $ = cheerio.load(res.text);
+                var items = amazonCrawler.getComments($);
+                for (i in items) {
+                    items[i].schedule_id = params._id;
                 }
-            }
-        });
-    });
+                console.log("getOnePage=====", params.name, params.totalPage, params.nowPage);
+                mongodb(function(db) {
+                    if (items && items.length > 0) {
+                        db.collection("comments").insertMany(items, function() {
+                            db.collection("schedule").update({
+                                _id: new ObjectId(params._id)
+                            }, {
+                                $set: {
+                                    nowPage: params.nowPage + 1
+                                }
+                            }, function() {
+                                callback && callback();
+                            });
+                        });
+                    } else {
+                        if (params.nowPage + 1 > params.totalPage) {
+                            db.collection("schedule").update({
+                                _id: new ObjectId(params._id)
+                            }, {
+                                $set: {
+                                    crawled: true
+                                }
+                            }, function() {
+                                callback && callback();
+                                amazonCrawler.analyze(params);
+                            });
+                        }
+                    }
+                });
+            });
+    }
 };
 amazonCrawler.create = function(params, callback) {
     mongodb(function(db) {
@@ -139,7 +146,7 @@ amazonCrawler.getAllComments = function(id, callback) {
         db.collection("comments").find({
             schedule_id: new ObjectId(id),
         }).toArray(function(err, data) {
-            callback && callback(data||[]);
+            callback && callback(data || []);
         });
     });
 }
@@ -176,10 +183,14 @@ amazonCrawler.analyze = function(params, callback) {
             return b.value - a.value;
         });
         var finalRes = resArr.slice(0, 100);
-        mongodb(function(db){
-            db.collection("schedule").update({_id : params._id}, {$set:{
-                analyze : finalRes
-            }},function(err, data) {
+        mongodb(function(db) {
+            db.collection("schedule").update({
+                _id: params._id
+            }, {
+                $set: {
+                    analyze: finalRes
+                }
+            }, function(err, data) {
                 callback && callback(finalRes);
             });
         });
