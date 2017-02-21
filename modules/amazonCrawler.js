@@ -52,6 +52,7 @@ amazonCrawler.getOnePage = function(params, callback) {
     var url = config.prerenderUrl + params.url + '&pageNumber=' + params.nowPage;
     superagent.get(url).timeout(10 * 1000).end(function(err, res) {
         if (err || !res) {
+            console.log("timeout=====", params.name, params.totalPage, params.nowPage);
             setTimeout(function() {
                 amazonCrawler.getOnePage(params, callback);
             });
