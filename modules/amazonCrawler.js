@@ -89,6 +89,8 @@ amazonCrawler.getOnePage = function(params, callback) {
                             callback && callback();
                             amazonCrawler.analyze(params);
                         });
+                    }else{
+                        amazonCrawler.getOnePage(params, callback);
                     }
                 }
             });
