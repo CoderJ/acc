@@ -53,7 +53,7 @@ amazonCrawler.getOnePage = function(params, callback) {
     superagent.get(url).timeout(10 * 1000).end(function(err, res) {
         if (err || !res) {
             setTimeout(function() {
-                getOnePage(params, callback);
+                amazonCrawler.getOnePage(params, callback);
             });
         } else {
             var $ = cheerio.load(res.text);
