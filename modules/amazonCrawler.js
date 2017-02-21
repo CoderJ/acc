@@ -3,11 +3,7 @@ var mongodb = require(__base + 'modules/db');
 var cheerio = require('cheerio');
 var config = require(__base + 'config');
 var ObjectId = require('mongodb').ObjectID;
-var natural = require('natural'),
-    TfIdf = natural.TfIdf,
-    tfidf = new TfIdf(),
-    nounInflector = new natural.NounInflector();
-var countInflector = natural.CountInflector;
+var natural = require('natural');
 var verbInflector = new natural.PresentVerbInflector();
 var fs = require("fs");
 var stopWords = fs.readFileSync(__base + '/data/stop_words', 'utf-8');
@@ -154,6 +150,10 @@ amazonCrawler.getAllComments = function(id, callback) {
     });
 }
 amazonCrawler.analyze = function(params, callback) {
+    var TfIdf = natural.TfIdf,
+    tfidf = new TfIdf(),
+    nounInflector = new natural.NounInflector();
+    var countInflector = natural.CountInflector;
     amazonCrawler.getAllComments(params._id, function(data) {
         var str = "";
         for (i in data) {
