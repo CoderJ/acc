@@ -49,6 +49,7 @@ amazonCrawler.test = function(url, callback) {
     });
 };
 amazonCrawler.getOnePage = function(params, callback) {
+    console.log("getOnePage=====", params.name, params.totalPage, params.nowPage);
     var url = config.prerenderUrl + params.url + '&pageNumber=' + params.nowPage;
     superagent.get(url).timeout(10 * 1000).end(function(err, res) {
         if (err || !res) {
@@ -62,7 +63,7 @@ amazonCrawler.getOnePage = function(params, callback) {
             for (i in items) {
                 items[i].schedule_id = params._id;
             }
-            console.log("getOnePage=====", params.name, params.totalPage, params.nowPage);
+            console.log("gotOnePage=====", params.name, params.totalPage, params.nowPage);
             mongodb(function(db) {
                 if (items && items.length > 0) {
                     db.collection("comments").insertMany(items, function() {
