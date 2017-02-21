@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <% include shared/header.ejs %>
+    </head>
+    <body>
+        <% include shared/navbar.ejs %>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 alerts">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="form-horizontal createNewForm">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label" for="newUrl">
+                                URL
+                            </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" id="newUrl" placeholder="enter new amazon detail page url in here" type="text">
+                                </input>
+                            </div>
+                            <div class="col-sm-2">
+                                <button ata-loading-text="创建中..." autocomplete="off" class="btn btn-default createNewBtn" type="submit">
+                                    创建任务
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="schedule-list empty">
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal" id="showPicModal" tabindex="-1" role="dialog" aria-labelledby="showPicModal">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">分析结果</h4>
+              </div>
+              <div class="modal-body" id="pic" style="height:400px;">
+              </div>
+            </div>
+          </div>
+        </div>
+        <% include shared/footer.ejs %>
+        <script type="text/javascript">
+            $(function() {
+                $(".createNewForm").submit(function() {
+                    var $btn = $(".createNewBtn").button('loading');
+                    var originUrl = $("#newUrl").val();
+                    var dataArr = originUrl.split('/');
+                    if (dataArr.length < 6) {
+                        alert("无法识别的链接，请确认使用Amazon商品详情页url!");
+                        return false;
+                    }
+                    var commentsUrl = "https://www.amazon.com/" + dataArr[3] + "/product-reviews/" + dataArr[5] + "/ref=cm_cr_arp_d_paging_btm_2?ie=UTF8&reviewerType=avp_only_reviews&showViewpoints=1&sortBy=helpful";
+                    $.post('/api/test', {
+                        url: commentsUrl
+                    }, function(d) {
+                        $btn.button('reset');
+                        if (d.totalCount) {
+                            if (confirm("找到 " + d.totalCount + " 条评论, 开始爬取?")) {
+                              createNewSchedule({
+                                totalCount :  d.totalCount,
+                                url : d.url
+                              });
+                            }
+                        }else{
+                          alert("没有找到评论，请确认使用Amazon商品详情页url!");
+                        }
+                    },"json");
+                    return false;
+                });
+
+                var createNewSchedule = function(params){
+                  $.post('/api/create',params,function(d){
+                    $(".alerts").tip('任务创建成功.','success');
+                    $("#newUrl").val("");
+                    refreshScheduleList();
+                  },"json");
+                }
+                var schedules = {};
+                var refreshScheduleList = function(){
+                  var list = $(".schedule-list");
+                  $.get('/api',function(d){
+                    if(d.data.length > 0){
+                      list.removeClass("empty");
+                      for(i in d.data){
+                          var percentage = (((d.data[i].nowPage||1)-1) *100 / (d.data[i].totalPage||1)).toFixed(2);
+                        if(!schedules[d.data[i]._id]){
+                          if(d.data[i].crawled && d.data[i].analyze){
+                            var item = $('<li class="media">\
+                              <div class="media-body">\
+                              <h4 class="media-heading">'+d.data[i].name+'</h4>\
+                              <div>'+new Date(d.data[i].create_at).Format('yyyy-MM-dd hh:mm:ss')+'</div>\
+                              </div>\
+                              <div class="media-right text-right">\
+                              <span class="page-pos">完成</span>\
+                              <div class="progress">\
+                                <a href="/download/'+d.data[i]._id+'/'+d.data[i].name.replace(/ /g,'-')+'.csv" target="_blank">下载Excel</a>&emsp;&emsp;<a href="#" class="showPic" data-toggle="modal" data-target="#showPicModal">查看分析结果</a>&emsp;\
+                              </div>\
+                              </li>');                          
+                          }else if(d.data[i].crawled){
+                            var item = $('<li class="media">\
+                              <div class="media-body">\
+                              <h4 class="media-heading">'+d.data[i].name+'</h4>\
+                              <div>'+new Date(d.data[i].create_at).Format('yyyy-MM-dd hh:mm:ss')+'</div>\
+                              </div>\
+                              <div class="media-right text-right">\
+                              <span class="page-pos">下载完成，分析中</span>\
+                              <div class="progress">\
+                              </div>\
+                              </li>');  
+                          }else{
+                            var item = $('<li class="media">\
+                              <div class="media-body">\
+                              <h4 class="media-heading">'+d.data[i].name+'</h4>\
+                              <div>'+new Date(d.data[i].create_at).Format('yyyy-MM-dd hh:mm:ss')+'</div>\
+                              </div>\
+                              <div class="media-right text-right">\
+                              <span class="page-pos">'+(d.data[i].nowPage||1)+'/'+(d.data[i].totalPage||1)+'</span>\
+                              <div class="progress">\
+                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="'+percentage+'" aria-valuemin="0" aria-valuemax="100" style="min-width: 3em;width: '+percentage+'%">\
+                                  '+percentage+'%\
+                                </div>\
+                                </div>\
+                              </div>\
+                              </li>');                          
+                            }
+
+                          schedules[d.data[i]._id] = item;
+                          item.appendTo(list);
+                          item.data("data",d.data[i]);
+                        }else{
+                          var item = schedules[d.data[i]._id];
+                          item.data("data",d.data[i]);
+                          if(d.data[i].crawled && d.data[i].analyze){
+                            if(item.find(".progress a").length < 1){
+                              item.find(".page-pos").text("完成");
+                              item.find(".progress").html('<a href="/download/'+d.data[i]._id+'/'+d.data[i].name.replace(/ /g,'-')+'.csv" target="_blank">下载Excel</a>&emsp;&emsp;<a href="#" class="showPic" data-toggle="modal" data-target="#showPicModal">查看分析结果</a>&emsp;');
+                            }
+                          }else if(d.data[i].crawled){
+                            item.find(".page-pos").text("下载完成，分析中");
+                            item.find(".progress").empty();
+                          }else{
+                            item.find(".page-pos").text((d.data[i].nowPage||1)+'/'+(d.data[i].totalPage||1));
+                            item.find(".progress .progress-bar").css("width",percentage+'%');
+                            item.find(".progress .progress-bar").text(percentage+'%');
+                            item.find(".progress .progress-bar").attr('aria-valuenow',percentage);
+                          }
+                        }
+                      }
+                    }else{
+                      list.addClass("empty");
+                    }
+                  });
+                }
+                refreshScheduleList();
+                setInterval(refreshScheduleList,5000);
+                $('#showPicModal').on('show.bs.modal', function (event) {
+                  var button = $(event.relatedTarget);
+                  var data = button.closest("li").data("data");
+                  setTimeout(function(){
+                    var chart = echarts.init(document.getElementById('pic'));
+                    chart.setOption({
+                        series: [{
+                            type: 'wordCloud',
+                            shape: 'circle',                                                         
+                            left: 'center',
+                            top: 'center',
+                            width: '90%',
+                            height: '90%',
+                            right: null,
+                            bottom: null,
+                            sizeRange: [12, 60],
+                            rotationRange: [-90, 90],
+                            rotationStep: 45,
+                            gridSize: 8,
+                              textStyle: {
+                                normal: {
+                                    fontFamily: 'sans-serif',
+                                    fontWeight: 'bold',
+                                    color: function () {
+                                        return 'rgb(' + [
+                                            Math.round(Math.random() * 190+60),
+                                            Math.round(Math.random() * 190),
+                                            Math.round(Math.random() * 190)
+                                        ].join(',') + ')';
+                                    }
+                                },
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowColor: '#333'
+                                }
+                            },
+                            data: data.analyze
+                        }]
+                    });
+
+
+
+                  },10);
+
+
+
+
+                });
+            });
+        </script>
+    </body>
+</html>

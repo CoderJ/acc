@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include shared/header.ejs %>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row" style="margin-bottom:40px;">
+        <div class="col-md-12 text-center" style="padding-top:80px;">
+            <h1>Amazon Comments Crawler</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <% if(locals.err_msg){%>
+          <div class="alert alert-danger" role="alert"><%= locals.err_msg%></div>
+          <%}%>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+          <form class="form-horizontal" id="loginForm" method="post" autocomplete="off">
+            <div class="form-group form-group-lg">
+              <div class="col-sm-12">
+                <input type="text" class="form-control" name="username" id="input_username" placeholder="Username" autocomplete="off" value="<%= locals.username||""%>" />
+              </div>
+            </div>
+            <div class="form-group form-group-lg">
+              <!--<label for="input_password" class="col-sm-2 control-label">Password</label>-->
+              <div class="col-sm-12">
+                <input type="password" class="form-control" name="password" id="input_password" placeholder="Password" autocomplete="off" />
+              </div>
+            </div>
+            <!--<div class="form-group form-group-lg">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox"> Remember me
+                  </label>
+                </div>
+              </div>
+            </div>-->
+            <div class="form-group form-group-lg">
+              <div class="col-sm-12">
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Sign in</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-4 hidden" id="login_container"></div>
+      </div>
+    </div>
+
+    <% include shared/footer.ejs %>
+    <script type="text/javascript">
+
+    $(function(){
+      $("#loginForm").submit(function(){
+        var data2Submit = {
+          username : $("#input_username").val(),
+          password : $("#input_password").val()
+        };
+        var error = 0;
+        for(i in data2Submit){
+          if(!data2Submit[i]){
+            error++;
+            $("#input_"+i).closest(".form-group").addClass("has-error");
+          }
+        }
+        if(error>0){
+          return false;
+        }
+      });
+    })
+    </script>
+  </body>
+</html>

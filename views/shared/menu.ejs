@@ -1,0 +1,61 @@
+<div class="col-md-2 sidebar-menu">
+ <% if(locals.permission.analytics_users||locals.user == "userstest"){%>
+ <div <% if(locals.key=="analytics_users"){%>class="active"<%}%>>
+  <div class="user-header">User Analytics</div>
+  <ul id="user-menu" class="menu-list cover">
+    <li>
+      <a id="Dashboard" href="/analytics/users/dashboard">Dashboard</a>
+    </li>
+    <li>
+      <a id="NewUser" href="/analytics/users/user">NewUser</a>
+    </li>
+    <li>
+      <a id="Refresh" href="/analytics/users/refresh">Refresh</a>
+    </li>
+    <li>
+      <a id="Click" href="/analytics/users/click">Click</a>
+    </li>
+    <li>
+      <a id="Share" href="/analytics/users/share">Share</a>
+    </li>
+    <li>
+      <a id="Article" href="/analytics/users/article">Article</a>
+    </li>
+    <li>
+      <a id="Duration" href="/analytics/users/duration">Duration</a>
+    </li> 
+    <li>
+      <a id="Notification" href="/analytics/users/notification">Active Notification</a>
+    </li>
+    <li>
+      <a id="Monitor" href="/analytics/users/monitor">Monitor</a>
+    </li>    
+    <li>
+      <a id="Monitor" href="/analytics/users/bucket">Bucket Info</a>
+    </li>    
+  </ul>
+</div>
+  <%}%>
+<% if(locals.permission.analytics_news||locals.user == "newstest"){%>
+<div <% if(locals.key=="analytics_news"){%>class="active"<%}%>>
+  <div class="content-header">Content Analytics</div>
+  <ul id="content-menu" class="menu-list cover">
+    <li>
+      <a id="c_article" href="/analytics/contents/articles">Article</a>
+    </li>
+    <li>
+      <a id="Gallery" href="/analytics/contents/gallery">Gallery</a>
+    </li>
+    <li>
+      <a id="Youtube" href="/analytics/contents/youtube">Youtube</a>
+    </li>
+    <li>
+      <a id="topic" href="/analytics/contents/topic">Topic</a>
+    </li>   
+    <li style="display: none">
+      <a id="topic-article-list" href="/analytics/contents/topic-article-list">Topic</a>
+    </li> 
+  </ul>
+</div>
+  <%}%>
+</div>
