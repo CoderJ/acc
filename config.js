@@ -15,7 +15,7 @@ var config = {
         host: "localhost",
         port: 27017
     },
-    prerenderUrl : "http://172.31.17.254:8050/",
+    prerenderUrl : "http://127.0.0.1:8050/",
     auth: true,
 };
 module.exports = config;
