@@ -9,7 +9,7 @@ var config = {
     cookieSecret: 'coderj!2017',
     sessionSecret: 'coderj!2017',
     cookieMaxAge: 1000 * 60 * 60,
-    serverPort: 8001,
+    serverPort: 8080,
     db: {
         db: "acc",
         host: "localhost",
