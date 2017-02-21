@@ -10,6 +10,7 @@ var crawler = function() {
             amazonCrawler.getOne(function(data) {
                 if (data.length > 0) {
                     amazonCrawler.getOnePage(data[0], function() {
+                        console.log(data[0]);
                         getSchedule();
                     });
                 } else {
