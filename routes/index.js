@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var amazonCrawler = require(__base + 'modules/amazonCrawler');
 var json2csv = require('json2csv');
-var fs = require('fss');
+var fs = require('fs');
 var permission = require(__base + 'modules/permission');
 router.use('/users', require(__base + 'routes/users'));
 router.use('/api', require(__base + 'routes/api'));
