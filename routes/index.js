@@ -23,8 +23,8 @@ router.get(/download\/(\w+)\/([^\/]+)/, function(req, res, next) {
     amazonCrawler.getAllComments(id,function(data){
         try {
           var result = json2csv({ data: data, fields: ["title","author","date","avp-badge","body","star","votes","images.0","images.1","images.2","images.3",] });
-          res.set('Content-Type', 'text/csv');
-          res.send(result);
+          //res.set('Content-Type', 'text/csv');
+          //res.send(result);
           fs.writeFIleSync(__base + '/public/files/'+req.params[1],result);
           res.redirect('/files/'+req.params[1]);
         } catch (err) {
