@@ -26,7 +26,7 @@ router.get(/download\/(\w+)\/([^\/]+)/, function(req, res, next) {
           //res.set('Content-Type', 'text/csv');
           //res.send(result);
           fs.writeFileSync(__base + '/public/files/'+req.params[1],result);
-          res.sendFile('/files/'+req.params[1]);
+          res.redirect('/files/'+req.params[1]);
         } catch (err) {
           res.send(err);
         }
