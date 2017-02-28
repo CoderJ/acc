@@ -18,6 +18,36 @@ router.get('/', function(req, res, next) {
         "permission": req.session.permission
     });
 });
+router.get(/download\/keywords\/(\w+)\/([^\/]+)/, function(req, res, next) {
+    if (!permission(req, res)) {
+        return false;
+    }
+    var id = req.params[0];
+    console.error("id","======================");
+    console.log(id);
+    amazonCrawler.getKeywords(id, function(data) {
+        var fields = ["keyword", "freq"];
+        var conf = {};
+        conf.name = "mysheet";
+        conf.cols = [{
+                caption: "keyword",
+                type: 'string',
+            },{
+                caption: "times",
+                type: 'number',
+            }];
+        conf.rows = [];
+        for (i in data) {
+            var item = [data[i].name,data[i].value];
+            conf.rows.push(item);
+        }
+        console.log(conf);
+        var result = nodeExcel.execute(conf);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats');
+        res.setHeader("Content-Disposition", "attachment; filename=" + req.params[1]);
+        res.end(result, 'binary');
+    });
+});
 router.get(/download\/(\w+)\/([^\/]+)/, function(req, res, next) {
     if (!permission(req, res)) {
         return false;
@@ -60,4 +90,5 @@ router.get(/download\/(\w+)\/([^\/]+)/, function(req, res, next) {
         res.end(result, 'binary');
     });
 });
+
 module.exports = router;

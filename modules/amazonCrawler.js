@@ -140,6 +140,15 @@ amazonCrawler.getOneCrawled = function(callback) {
         });
     });
 }
+amazonCrawler.getKeywords = function(id, callback) {
+    mongodb(function(db) {
+        db.collection("schedule").find({
+            _id: new ObjectId(id),
+        },{analyze:1}).toArray(function(err, data) {
+            callback && callback(data[0].analyze || []);
+        });
+    });
+}
 amazonCrawler.getAllComments = function(id, callback) {
     mongodb(function(db) {
         db.collection("comments").find({
