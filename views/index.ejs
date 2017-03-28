@@ -147,7 +147,8 @@
                           if(d.data[i].crawled && d.data[i].analyze){
                             if(item.find(".progress a").length < 1){
                               item.find(".page-pos").text("完成");
-                              item.find(".progress").html('<a href="/download/'+d.data[i]._id+'/'+d.data[i].name.replace(/ /g,'-')+'.xlsx" target="_blank">下载Excel</a>&emsp;&emsp;<a href="#" class="showPic" data-toggle="modal" data-target="#showPicModal">查看分析结果</a>&emsp;');
+                              item.find(".progress").html('<a href="/download/keywords/'+d.data[i]._id+'/'+d.data[i].name.replace(/ /g,'-')+'.xlsx" target="_blank">下载关键词</a>&nbsp;\
+                                <a href="/download/'+d.data[i]._id+'/'+d.data[i].name.replace(/ /g,'-')+'.xlsx" target="_blank">下载Excel</a>&emsp;&emsp;<a href="#" class="showPic" data-toggle="modal" data-target="#showPicModal">查看分析结果</a>&emsp;');
                             }
                           }else if(d.data[i].crawled){
                             item.find(".page-pos").text("下载完成，分析中");
